@@ -10,6 +10,11 @@ SCREEN_HEIGHT = 600
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 font = pygame.font.SysFont('Arial', 20)
+#Sanika 
+text_surface = font.render('Use space to boost your bird higher to get through the pipes without touching them', True, (0,0,0))
+text_rect = text_surface.get_rect()
+text_rect.center = (screen_width // 2, (screen_height // 2) - 100)
+
 
 game_state = "menu"
 objects = []
@@ -76,6 +81,8 @@ player = Player()
 easy_button = Button(350, 200, 100, 50, 'Easy', start_game)
 hard_button = Button(350, 300, 100, 50, 'Hard', start_game)
 
+
+
 # Variable to keep the main loop running
 running = True
 
@@ -91,8 +98,11 @@ while running:
 
     if game_state == "menu":
         screen.fill((135, 206, 250)) # Light Blue
+        #Sanika
+        screen.blit(text_surface, text_rect)
         for obj in objects:
             obj.process()
+        
     
     elif game_state == "playing":
         screen.fill((0, 100, 0)) 
