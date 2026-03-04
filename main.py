@@ -1,4 +1,9 @@
 import pygame, sys
+
+from pygame.locals import (
+    RLEACCEL,
+    K_SPACE
+)   
  
 # Initialize pygame
 pygame.init()
@@ -11,9 +16,12 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 font = pygame.font.SysFont('Arial', 20)
 #Sanika 
-text_surface = font.render('Use space to boost your bird higher to get through the pipes without touching them', True, (0,0,0))
+text_surface = font.render('Use space to boost your bird higher', True, (0,0,0))
+text_surface1 = font.render('to get through the pipes without touching them', True, (0,0,0))
 text_rect = text_surface.get_rect()
-text_rect.center = (screen_width // 2, (screen_height // 2) - 100)
+text_rect1 = text_surface1.get_rect()
+text_rect.center = (SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 150)
+text_rect1.center = (SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 120)
 
 
 game_state = "menu"
@@ -29,6 +37,11 @@ class Player(pygame.sprite.Sprite):
             self.surf = pygame.Surface((50, 50))
             self.surf.fill((255, 200, 0))
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
+
+    def update(self, pressed_keys):
+        if pressed_keys[K_SPACE]:
+            self.rect.move_ip(0, -5)
+
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
@@ -100,18 +113,22 @@ while running:
         screen.fill((135, 206, 250)) # Light Blue
         #Sanika
         screen.blit(text_surface, text_rect)
+        screen.blit(text_surface1, text_rect1)
         for obj in objects:
             obj.process()
         
     
     elif game_state == "playing":
-        screen.fill((0, 100, 0)) 
+        screen.fill((135, 206, 250)) 
         screen.blit(player.surf, player.rect)
+
+        pressed_keys = pygame.key.get_pressed()
+
+        player.update(pressed_keys)
+
 
     pygame.display.flip()
     clock.tick(30)
 
 pygame.quit()
-sys.exit() 
-
-
+sys.exit()
