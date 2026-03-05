@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         try:
             self.surf = pygame.image.load("bird.png").convert()
-            self.surf.set_colorkey((0, 0, 0))
+            self.surf.set_colorkey((135, 206, 250), RLEACCEL)
         except:
             self.surf = pygame.Surface((50, 50))
             self.surf.fill((255, 200, 0))
@@ -42,7 +42,21 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[K_SPACE]:
             self.rect.move_ip(0, -5)
 
-
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Pipe, self).__init__()
+        try:
+            self.surf = pygame.image.load("top-pipe.png").convert()
+            self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        except:
+            self.surf = pygame.Surface((50, 300))
+            self.surf.fill((0, 255, 0))
+        self.rect = self.surf.get_rect(midtop=(SCREEN_WIDTH, 0))
+    def update(self):
+        self.rect.move_ip(-5, 0)
+        if self.rect.right < 0:
+            self.kill() 
+    
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
         self.x = x
@@ -102,6 +116,9 @@ running = True
 # Setup the clock for a decent framerate
 clock = pygame.time.Clock()
 
+pipes = pygame.sprite.Group()
+top_pipe = Pipe()
+pipes.add(top_pipe)
 
 # Main loop
 while running:
@@ -121,10 +138,13 @@ while running:
     elif game_state == "playing":
         screen.fill((135, 206, 250)) 
         screen.blit(player.surf, player.rect)
-
+        screen.blit(top_pipe.surf, top_pipe.rect)
+        top_pipe.update()
+        screen.blit(player.surf, player.rect)
         pressed_keys = pygame.key.get_pressed()
 
         player.update(pressed_keys)
+        
 
 
     pygame.display.flip()
