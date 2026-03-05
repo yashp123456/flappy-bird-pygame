@@ -32,9 +32,10 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         try:
             self.surf = pygame.image.load("bird.png").convert()
-            self.surf.set_colorkey((135, 206, 250), RLEACCEL)
+            self.surf = pygame.transform.scale(self.surf, (40, 40))
+            self.surf.set_colorkey((135, 206, 250))
         except:
-            self.surf = pygame.Surface((50, 50))
+            self.surf = pygame.Surface((30, 30))
             self.surf.fill((255, 200, 0))
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
 
@@ -47,6 +48,7 @@ class Pipe(pygame.sprite.Sprite):
         super(Pipe, self).__init__()
         try:
             self.surf = pygame.image.load("top-pipe.png").convert()
+            self.surf = pygame.transform.scale(self.surf, (300, 200))
             self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         except:
             self.surf = pygame.Surface((50, 300))
