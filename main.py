@@ -30,6 +30,8 @@ objects = []
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
+        self.speed = 5 
+        self.started = False
         try:
             self.surf = pygame.image.load("bird.png").convert()
             self.surf = pygame.transform.scale(self.surf, (40, 40))
@@ -37,17 +39,29 @@ class Player(pygame.sprite.Sprite):
         except:
             self.surf = pygame.Surface((30, 30))
             self.surf.fill((255, 200, 0))
-        self.rect = self.surf.get_rect(center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
+            
+        self.rect = self.surf.get_rect(
+            center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+        )
 
     def update(self, pressed_keys):
         if pressed_keys[K_SPACE]:
-            self.rect.move_ip(0, -5)
+            self.started = True
+        
+        if self.started:
+            self.rect.move_ip(0, 5) 
+            if pressed_keys[K_SPACE]:
+                self.rect.move_ip(0, -self.speed - 15) 
+            
+            if self.rect.bottom > SCREEN_HEIGHT:
+                self.kill()
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self):
         super(Pipe, self).__init__()
         try:
             self.surf = pygame.image.load("top-pipe.png").convert()
+            self.surf = pygame.image.load("bottom-pipe.png").convert()
             self.surf = pygame.transform.scale(self.surf, (300, 200))
             self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         except:
@@ -139,6 +153,8 @@ while running:
     
     elif game_state == "playing":
         screen.fill((135, 206, 250)) 
+        if player.started:
+            top_pipe.update()
         screen.blit(player.surf, player.rect)
         screen.blit(top_pipe.surf, top_pipe.rect)
         top_pipe.update()
