@@ -1,4 +1,5 @@
 import pygame, sys
+import random
 
 from pygame.locals import (
     RLEACCEL,
@@ -12,7 +13,6 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Create the screen object
-# The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 font = pygame.font.SysFont('Arial', 20)
 #Sanika 
@@ -59,19 +59,46 @@ class Player(pygame.sprite.Sprite):
 class Pipe(pygame.sprite.Sprite):
     def __init__(self):
         super(Pipe, self).__init__()
+        self.gap = 150 
+        self.width = 70 
+
+        self.top_height = random.randint(50, SCREEN_HEIGHT - self.gap - 50)
+        
         try:
-            self.surf = pygame.image.load("top-pipe.png").convert()
-            self.surf = pygame.image.load("bottom-pipe.png").convert()
-            self.surf = pygame.transform.scale(self.surf, (300, 200))
-            self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+            self.top_surf = pygame.image.load("top-pipe.png").convert()
+            self.top_surf = pygame.transform.scale(self.top_surf, (self.width, self.top_height))
+            
+            self.bottom_surf = pygame.image.load("bottom-pipe.png").convert()
+            bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
+            self.bottom_surf = pygame.transform.scale(self.bottom_surf, (self.width, bot_height))
+            
+            # Remove backgrounds
+            self.top_surf.set_colorkey((0, 0, 0), RLEACCEL)
+            self.bottom_surf.set_colorkey((0, 0, 0), RLEACCEL)
         except:
-            self.surf = pygame.Surface((50, 300))
-            self.surf.fill((0, 255, 0))
-        self.rect = self.surf.get_rect(midtop=(SCREEN_WIDTH, 0))
+            self.top_surf = pygame.Surface((self.width, self.top_height))
+            self.top_surf.fill((0, 255, 0))
+            
+            bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
+            self.bottom_surf = pygame.Surface((self.width, bot_height))
+            self.bottom_surf.fill((0, 255, 0))
+
+        self.top_rect = self.top_surf.get_rect(topleft=(SCREEN_WIDTH, 0))
+        self.bottom_rect = self.bottom_surf.get_rect(topleft=(SCREEN_WIDTH, self.top_height + self.gap))
+        
+        self.image = self.top_surf 
+        self.rect = self.top_rect
+
     def update(self):
-        self.rect.move_ip(-5, 0)
-        if self.rect.right < 0:
-            self.kill() 
+        self.top_rect.move_ip(-5, 0)
+        self.bottom_rect.move_ip(-5, 0)
+        
+        if self.top_rect.right < 0:
+            self.kill()
+
+    def draw(self, surface):
+        surface.blit(self.top_surf, self.top_rect)
+        surface.blit(self.bottom_surf, self.bottom_rect)
     
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
@@ -152,15 +179,17 @@ while running:
         
     
     elif game_state == "playing":
-        screen.fill((135, 206, 250)) 
+        screen.fill((135, 206, 250))
+        
         if player.started:
-            top_pipe.update()
+            pipes.update()
+            
+            for pipe in pipes:
+                pipe.draw(screen)
+                
         screen.blit(player.surf, player.rect)
-        screen.blit(top_pipe.surf, top_pipe.rect)
-        top_pipe.update()
-        screen.blit(player.surf, player.rect)
+        
         pressed_keys = pygame.key.get_pressed()
-
         player.update(pressed_keys)
         
 
