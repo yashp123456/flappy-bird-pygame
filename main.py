@@ -59,40 +59,26 @@ class Player(pygame.sprite.Sprite):
 class Pipe(pygame.sprite.Sprite):
     def __init__(self):
         super(Pipe, self).__init__()
-        self.gap = 150 
-        self.width = 70 
-
+        self.gap = 150
+        self.width = 70
         self.top_height = random.randint(50, SCREEN_HEIGHT - self.gap - 50)
-        
-        try:
-            self.top_surf = pygame.image.load("top-pipe.png").convert()
-            self.top_surf = pygame.transform.scale(self.top_surf, (self.width, self.top_height))
-            
-            self.bottom_surf = pygame.image.load("bottom-pipe.png").convert()
-            bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
-            self.bottom_surf = pygame.transform.scale(self.bottom_surf, (self.width, bot_height))
-            
-            # Remove backgrounds
-            self.top_surf.set_colorkey((0, 0, 0), RLEACCEL)
-            self.bottom_surf.set_colorkey((0, 0, 0), RLEACCEL)
-        except:
-            self.top_surf = pygame.Surface((self.width, self.top_height))
-            self.top_surf.fill((0, 255, 0))
-            
-            bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
-            self.bottom_surf = pygame.Surface((self.width, bot_height))
-            self.bottom_surf.fill((0, 255, 0))
+
+        self.top_surf = pygame.Surface((self.width, self.top_height))
+        self.top_surf.fill((0, 255, 0))
+
+        bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
+        self.bottom_surf = pygame.Surface((self.width, bot_height))
+        self.bottom_surf.fill((0, 255, 0))
 
         self.top_rect = self.top_surf.get_rect(topleft=(SCREEN_WIDTH, 0))
-        self.bottom_rect = self.bottom_surf.get_rect(topleft=(SCREEN_WIDTH, self.top_height + self.gap))
-        
-        self.image = self.top_surf 
-        self.rect = self.top_rect
+        self.bottom_rect = self.bottom_surf.get_rect(
+            topleft=(SCREEN_WIDTH, self.top_height + self.gap)
+        )
 
     def update(self):
         self.top_rect.move_ip(-5, 0)
         self.bottom_rect.move_ip(-5, 0)
-        
+
         if self.top_rect.right < 0:
             self.kill()
 
@@ -141,61 +127,68 @@ class Button():
             screen.blit(self.buttonSurface, self.buttonRect)
 
 def start_game():
-    global game_state
+    global game_state, player, pipes
     game_state = "playing"
+    player = Player()
+    pipes = pygame.sprite.Group()
 
 def my_function():
     print("Button Pressed!")
 
-player = Player()
+
 easy_button = Button(350, 200, 100, 50, 'Easy', start_game)
 hard_button = Button(350, 300, 100, 50, 'Hard', start_game)
 
 
-
+ADDPIPE = pygame.USEREVENT + 1
+pygame.time.set_timer(ADDPIPE, 1500)
 # Variable to keep the main loop running
 running = True
 
-# Setup the clock for a decent framerate
-clock = pygame.time.Clock()
-
+player = Player()
 pipes = pygame.sprite.Group()
-top_pipe = Pipe()
-pipes.add(top_pipe)
-
+clock = pygame.time.Clock()
 # Main loop
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        
+        if game_state == "playing" and event.type == ADDPIPE:
+            pipes.add(Pipe())
 
     if game_state == "menu":
-        screen.fill((135, 206, 250)) # Light Blue
-        #Sanika
+        screen.fill((135, 206, 250))
         screen.blit(text_surface, text_rect)
         screen.blit(text_surface1, text_rect1)
         for obj in objects:
             obj.process()
-        
-    
+            
     elif game_state == "playing":
         screen.fill((135, 206, 250))
-        
-        if player.started:
-            pipes.update()
-            
-            for pipe in pipes:
-                pipe.draw(screen)
-                
-        screen.blit(player.surf, player.rect)
-        
+
         pressed_keys = pygame.key.get_pressed()
         player.update(pressed_keys)
-        
+
+        if player.started:
+            pipes.update()
+
+        for pipe in pipes:
+            pipe.draw(screen)
+            if player.rect.colliderect(pipe.top_rect) or player.rect.colliderect(pipe.bottom_rect):
+                running = False
+
+        screen.blit(player.surf, player.rect)
+
+        if player.rect.bottom > SCREEN_HEIGHT:
+            running = False
+            
+
 
 
     pygame.display.flip()
     clock.tick(30)
+
 
 pygame.quit()
 sys.exit()
