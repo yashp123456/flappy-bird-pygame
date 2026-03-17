@@ -63,14 +63,22 @@ class Pipe(pygame.sprite.Sprite):
         self.width = 70
         self.top_height = random.randint(50, SCREEN_HEIGHT - self.gap - 50)
 
-        self.top_surf = pygame.Surface((self.width, self.top_height))
-        self.top_surf.fill((0, 255, 0))
+        try:
+            img_top = pygame.image.load("top-pipe.png").convert()
+            img_bottom = pygame.image.load("bottom-pipe.png").convert()
+            img_top.set_colorkey((255, 255, 255))
+            img_bottom.set_colorkey((255, 255, 255))
+        except:
+            img_top = pygame.Surface((self.width, SCREEN_HEIGHT))
+            img_bottom = pygame.Surface((self.width, SCREEN_HEIGHT))
+            img_top.fill((0, 255, 0))
+            img_bottom.fill((0, 255, 0))
+
+        self.top_surf = pygame.transform.scale(img_top, (self.width, self.top_height))
+        self.top_rect = self.top_surf.get_rect(topleft=(SCREEN_WIDTH, 0))
 
         bot_height = SCREEN_HEIGHT - (self.top_height + self.gap)
-        self.bottom_surf = pygame.Surface((self.width, bot_height))
-        self.bottom_surf.fill((0, 255, 0))
-
-        self.top_rect = self.top_surf.get_rect(topleft=(SCREEN_WIDTH, 0))
+        self.bottom_surf = pygame.transform.scale(img_bottom, (self.width, bot_height))
         self.bottom_rect = self.bottom_surf.get_rect(
             topleft=(SCREEN_WIDTH, self.top_height + self.gap)
         )
@@ -85,6 +93,7 @@ class Pipe(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.top_surf, self.top_rect)
         surface.blit(self.bottom_surf, self.bottom_rect)
+
     
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
@@ -141,7 +150,7 @@ hard_button = Button(350, 300, 100, 50, 'Hard', start_game)
 
 
 ADDPIPE = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDPIPE, 1500)
+pygame.time.set_timer(ADDPIPE, 1750)
 # Variable to keep the main loop running
 running = True
 
