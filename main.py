@@ -34,19 +34,38 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.speed = 5 
         self.started = False
+        
         try:
-            self.surf = pygame.image.load("bird.png").convert()
-            self.surf = pygame.transform.scale(self.surf, (40, 40))
-            self.surf.set_colorkey((135, 206, 250))
+            self.frames = [
+                pygame.transform.scale(pygame.image.load("bird1.png").convert_alpha(), (50, 50)),
+                pygame.transform.scale(pygame.image.load("bird2.png").convert_alpha(), (50, 50)),
+                pygame.transform.scale(pygame.image.load("bird3.png").convert_alpha(), (50, 50)),
+                pygame.transform.scale(pygame.image.load("bird4.png").convert_alpha(), (50, 50)),
+                pygame.transform.scale(pygame.image.load("bird5.png").convert_alpha(), (50, 50))
+            ]
         except:
-            self.surf = pygame.Surface((30, 30))
-            self.surf.fill((255, 200, 0))
+            self.frames = [pygame.Surface((40, 40)) for _ in range(5)]
+            for i, f in enumerate(self.frames): f.fill((255, 200, 10 * i))
+
+        self.current_frame = 0
+        self.surf = self.frames[self.current_frame]
         self.rect = self.surf.get_rect(center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
+        
+        self.anim_speed = 0.2 
+        self.anim_index = 0
+
+    def animate(self):
+        self.anim_index += self.anim_speed
+        if self.anim_index >= len(self.frames):
+            self.anim_index = 0
+        self.current_frame = int(self.anim_index)
+        self.surf = self.frames[self.current_frame]
 
     def update(self, pressed_keys):
         if pressed_keys[K_SPACE]:
             self.started = True
         if self.started:
+            self.animate()
             self.rect.move_ip(0, 5) 
             if pressed_keys[K_SPACE]:
                 self.rect.move_ip(0, -self.speed - 15)
@@ -84,10 +103,11 @@ class Pipe(pygame.sprite.Sprite):
         surface.blit(self.bottom_surf, self.bottom_rect)
     
 class Button():
-    def __init__(self, x, y, width, height, buttonText, onclickFunction):
+    def __init__(self, x, y, width, height, buttonText, onclickFunction, args):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = buttonText
         self.onclick = onclickFunction
+        self.args = args
         objects.append(self)
 
     def process(self):
@@ -97,25 +117,27 @@ class Button():
             color = (200, 200, 200)
             if pygame.mouse.get_pressed()[0]:
                 self.onclick()
+                self.onclick(self.args)
         
         pygame.draw.rect(screen, color, self.rect)
         txt = small_font.render(self.text, True, (0,0,0))
         screen.blit(txt, (self.rect.centerx - txt.get_width()//2, self.rect.centery - txt.get_height()//2))
 
-def start_game():
+def start_game(pipe_frequency=2000):
     global game_state, player, pipes, score
     game_state = "playing"
     score = 0
     player = Player()
     pipes = pygame.sprite.Group()
+    pygame.time.set_timer(ADDPIPE, pipe_frequency)
 
 def my_function():
     print("Button Pressed!")
 
 
-easy_button = Button(350, 200, 100, 50, 'Easy', start_game)
-hard_button = Button(350, 300, 100, 50, 'Hard', start_game)
-retry_button = Button(350, 350, 100, 50, 'Restart', start_game)
+easy_button = Button(350, 200, 100, 50, 'Easy', start_game, 2000)
+hard_button = Button(350, 260, 100, 50, 'Hard', start_game, 1500)
+retry_button = Button(350, 350, 100, 50, 'Restart', start_game, 2000)
 
 
 ADDPIPE = pygame.USEREVENT + 1
