@@ -131,6 +131,14 @@ def start_game(pipe_frequency=2000):
     pipes = pygame.sprite.Group()
     pygame.time.set_timer(ADDPIPE, pipe_frequency)
 
+def menu (pipe_frequency=2000):
+    global game_state, player, pipes, score
+    game_state = "menu"
+    title = font.render("Flappy Bird", True, (0,0,0))
+    screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 150))
+    easy_button.process()
+    hard_button.process()
+
 def my_function():
     print("Button Pressed!")
 
@@ -138,6 +146,7 @@ def my_function():
 easy_button = Button(350, 200, 100, 50, 'Easy', start_game, 2000)
 hard_button = Button(350, 260, 100, 50, 'Hard', start_game, 1500)
 retry_button = Button(350, 350, 100, 50, 'Restart', start_game, 2000)
+change_button = Button(350, 410, 150, 50, 'Change Level', menu, 2000)
 
 
 ADDPIPE = pygame.USEREVENT + 1
@@ -199,7 +208,9 @@ while running:
         screen.blit(over_txt, (SCREEN_WIDTH//2 - over_txt.get_width()//2, 150))
         screen.blit(sc_txt, (SCREEN_WIDTH//2 - sc_txt.get_width()//2, 220))
         screen.blit(hi_txt, (SCREEN_WIDTH//2 - hi_txt.get_width()//2, 260))
-        retry_button.process()       
+        retry_button.process()  
+
+        change_button.process()            
 
     pygame.display.flip()
     clock.tick(30)
