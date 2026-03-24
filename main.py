@@ -26,7 +26,9 @@ text_rect1.center = (SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 120)
 
 game_state = "menu"
 score = 0
-high_score = 0
+easy_high_score = 0
+hard_high_score = 0
+current_mode = "easy"
 objects = []
 
 class Player(pygame.sprite.Sprite):
@@ -116,23 +118,24 @@ class Button():
         if self.rect.collidepoint(mousePos):
             color = (200, 200, 200)
             if pygame.mouse.get_pressed()[0]:
-                self.onclick()
                 self.onclick(self.args)
         
         pygame.draw.rect(screen, color, self.rect)
         txt = small_font.render(self.text, True, (0,0,0))
         screen.blit(txt, (self.rect.centerx - txt.get_width()//2, self.rect.centery - txt.get_height()//2))
 
-def start_game(pipe_frequency=2000):
-    global game_state, player, pipes, score
+def start_game(args):
+    global game_state, player, pipes, score, current_mode
+    pipe_frequency, mode = args
     game_state = "playing"
     score = 0
+    current_mode = mode
     player = Player()
     pipes = pygame.sprite.Group()
     pygame.time.set_timer(ADDPIPE, pipe_frequency)
 
-def menu (pipe_frequency=2000):
-    global game_state, player, pipes, score
+def menu(args=None):
+    global game_state, player, pipes, score, current_mode
     game_state = "menu"
     title = font.render("Flappy Bird", True, (0,0,0))
     screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 150))
@@ -142,11 +145,10 @@ def menu (pipe_frequency=2000):
 def my_function():
     print("Button Pressed!")
 
-
-easy_button = Button(350, 200, 100, 50, 'Easy', start_game, 2000)
-hard_button = Button(350, 260, 100, 50, 'Hard', start_game, 1500)
-retry_button = Button(350, 350, 100, 50, 'Restart', start_game, 2000)
-change_button = Button(350, 410, 150, 50, 'Change Level', menu, 2000)
+easy_button = Button(350, 200, 100, 50, 'Easy', start_game, args=(2000, "easy"))
+hard_button = Button(350, 260, 100, 50, 'Hard', start_game, args=(1500, "hard"))
+retry_button = Button(350, 350, 100, 50, 'Restart', start_game, args=(2000, "easy"))
+change_button = Button(350, 410, 150, 50, 'Change Level', menu, args=None) 
 
 
 ADDPIPE = pygame.USEREVENT + 1
@@ -199,11 +201,16 @@ while running:
         score_txt = font.render(f"Score: {score}", True, (255, 255, 255))
         screen.blit(score_txt, (10, 10))
     elif game_state == "game_over":
-        if score > high_score: high_score = score
+        if current_mode == "easy":
+            if score > easy_high_score: easy_high_score = score
+            current_hi = easy_high_score
+        else:
+            if score > hard_high_score: hard_high_score = score
+            current_hi = hard_high_score
         
         over_txt = font.render("GAME OVER", True, (200, 0, 0))
         sc_txt = font.render(f"Score: {score}", True, (0,0,0))
-        hi_txt = font.render(f"High Score: {high_score}", True, (0,0,0))
+        hi_txt = font.render(f"High Score: {current_hi}", True, (0,0,0))
         
         screen.blit(over_txt, (SCREEN_WIDTH//2 - over_txt.get_width()//2, 150))
         screen.blit(sc_txt, (SCREEN_WIDTH//2 - sc_txt.get_width()//2, 220))
