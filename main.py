@@ -34,8 +34,12 @@ objects = []
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.speed = 5 
+        self.speed = 15 
         self.started = False
+        self.velocity = 0
+        self.gravity = 1.5
+        self.jump_power = -13
+        self.can_jump = True
         
         try:
             self.frames = [
@@ -55,7 +59,7 @@ class Player(pygame.sprite.Sprite):
         
         self.anim_speed = 0.2 
         self.anim_index = 0
-
+        
     def animate(self):
         self.anim_index += self.anim_speed
         if self.anim_index >= len(self.frames):
@@ -64,13 +68,26 @@ class Player(pygame.sprite.Sprite):
         self.surf = self.frames[self.current_frame]
 
     def update(self, pressed_keys):
-        if pressed_keys[K_SPACE]:
-            self.started = True
+        if pressed_keys[pygame.K_SPACE]:
+            if self.can_jump:
+                self.started = True
+                self.velocity = self.jump_power
+                self.can_jump = False  
+        else:
+            self.can_jump = True 
+
         if self.started:
             self.animate()
-            self.rect.move_ip(0, 5) 
-            if pressed_keys[K_SPACE]:
-                self.rect.move_ip(0, -self.speed - 15)
+            self.velocity += self.gravity
+            self.rect.move_ip(0, self.velocity)
+
+            if self.rect.top <= 0:
+                self.rect.top = 0
+                self.velocity = 0
+            
+            if self.rect.bottom >= SCREEN_HEIGHT:
+                self.rect.bottom = SCREEN_HEIGHT
+                self.velocity = 0
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self):
@@ -147,7 +164,7 @@ def my_function():
 
 easy_button = Button(350, 200, 100, 50, 'Easy', start_game, args=(2000, "easy"))
 hard_button = Button(350, 260, 100, 50, 'Hard', start_game, args=(1500, "hard"))
-retry_button = Button(350, 350, 100, 50, 'Restart', start_game, args=(2000, "easy"))
+retry_button = Button(350, 350, 100, 50, 'Restart', start_game, args=(2000, current_mode))
 change_button = Button(350, 410, 150, 50, 'Change Level', menu, args=None) 
 
 
