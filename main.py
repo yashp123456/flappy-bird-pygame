@@ -12,10 +12,14 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+
 # Create the screen object
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 font = pygame.font.SysFont('Arial', 20)
 small_font = pygame.font.SysFont('Arial', 20)
+
+background_img = pygame.image.load("flappybird-background.png").convert()
+background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 text_surface = font.render('Use space to boost your bird higher', True, (0,0,0))
 text_surface1 = font.render('to get through the pipes without touching them', True, (0,0,0))
@@ -186,7 +190,7 @@ while running:
         
         if game_state == "playing" and event.type == ADDPIPE:
             pipes.add(Pipe())
-    screen.fill((135, 206, 250))
+    screen.blit(background_img, (0, 0))
 
     if game_state == "menu":
         title = font.render("Flappy Bird", True, (0,0,0))
