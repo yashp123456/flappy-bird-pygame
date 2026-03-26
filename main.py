@@ -46,12 +46,19 @@ class Player(pygame.sprite.Sprite):
         self.can_jump = True
         
         try:
+            def load_bird(path):
+                img = pygame.image.load(path).convert()
+                color_to_remove = img.get_at((0, 0))
+                img.set_colorkey(color_to_remove)
+
+                return pygame.transform.scale(img, (48, 37))
+
             self.frames = [
-                pygame.transform.scale(pygame.image.load("bird1.png").convert_alpha(), (50, 50)),
-                pygame.transform.scale(pygame.image.load("bird2.png").convert_alpha(), (50, 50)),
-                pygame.transform.scale(pygame.image.load("bird3.png").convert_alpha(), (50, 50)),
-                pygame.transform.scale(pygame.image.load("bird4.png").convert_alpha(), (50, 50)),
-                pygame.transform.scale(pygame.image.load("bird5.png").convert_alpha(), (50, 50))
+                load_bird("bird1.png"),
+                load_bird("bird2.png"),
+                load_bird("bird3.png"),
+                load_bird("bird4.png"),
+                load_bird("bird5.png")
             ]
         except:
             self.frames = [pygame.Surface((40, 40)) for _ in range(5)]
@@ -126,16 +133,17 @@ class Pipe(pygame.sprite.Sprite):
         surface.blit(self.bottom_surf, self.bottom_rect)
     
 class Button():
-    def __init__(self, x, y, width, height, buttonText, onclickFunction, args):
+    def __init__(self, x, y, width, height, buttonText, onclickFunction, args, color=(255, 255, 255)):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = buttonText
         self.onclick = onclickFunction
         self.args = args
+        self.base_color = color
         objects.append(self)
 
     def process(self):
         mousePos = pygame.mouse.get_pos()
-        color = (255, 255, 255)
+        color = self.base_color
         if self.rect.collidepoint(mousePos):
             color = (200, 200, 200)
             if pygame.mouse.get_pressed()[0]:
@@ -168,8 +176,8 @@ def my_function():
 
 easy_button = Button(350, 200, 100, 50, 'Easy', start_game, args=(2000, "easy"))
 hard_button = Button(350, 260, 100, 50, 'Hard', start_game, args=(1500, "hard"))
-retry_button = Button(350, 350, 100, 50, 'Restart', start_game, args=(2000, current_mode))
-change_button = Button(350, 410, 150, 50, 'Change Level', menu, args=None) 
+retry_button = Button(350, 350, 130, 50, 'Restart', start_game, (2000, current_mode),(255, 238, 140))
+change_button = Button(350, 410, 130, 50, 'Change Level', menu, None, (255, 238, 140)) 
 
 
 ADDPIPE = pygame.USEREVENT + 1
