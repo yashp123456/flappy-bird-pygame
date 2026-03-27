@@ -25,8 +25,8 @@ text_surface = font.render('Use space to boost your bird higher', True, (0,0,0))
 text_surface1 = font.render('to get through the pipes without touching them', True, (0,0,0))
 text_rect = text_surface.get_rect()
 text_rect1 = text_surface1.get_rect()
-text_rect.center = (SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 150)
-text_rect1.center = (SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 120)
+text_rect.center = (SCREEN_WIDTH // 2, 80)   
+text_rect1.center = (SCREEN_WIDTH // 2, 110)
 
 game_state = "menu"
 score = 0
@@ -92,13 +92,6 @@ class Player(pygame.sprite.Sprite):
             self.velocity += self.gravity
             self.rect.move_ip(0, self.velocity)
 
-            if self.rect.top <= 0:
-                self.rect.top = 0
-                self.velocity = 0
-            
-            if self.rect.bottom >= SCREEN_HEIGHT:
-                self.rect.bottom = SCREEN_HEIGHT
-                self.velocity = 0
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self):
@@ -203,6 +196,9 @@ while running:
     if game_state == "menu":
         title = font.render("Flappy Bird", True, (0,0,0))
         screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 150))
+        screen.blit(text_surface, text_rect)
+        screen.blit(text_surface1, text_rect1)
+
         easy_button.process()
         hard_button.process()
 
@@ -233,9 +229,14 @@ while running:
         if current_mode == "easy":
             if score > easy_high_score: easy_high_score = score
             current_hi = easy_high_score
+            retry_button.args = (2000, "easy") 
         else:
             if score > hard_high_score: hard_high_score = score
             current_hi = hard_high_score
+            retry_button.args = (1500, "hard") 
+
+        retry_button.process()
+        change_button.process()
         
         over_txt = font.render("GAME OVER", True, (200, 0, 0))
         sc_txt = font.render(f"Score: {score}", True, (0,0,0))
